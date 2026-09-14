@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String?
+  auth0Id   String?  @unique
+  created_at DateTime @default(now())
+  isVerified Boolean  @default(false)
+  role       Role     @default(USER)
+  imageUrl   String?
+  branchId Int?
+  branch Branch? @relation(fields:[branchId],references:[id])
+  queueEntriesAsUser  QueueEntry[]
+  queueEntriesAsStaff QueueEntry[] @relation("StaffQueueEntries")
+}
+
+enum Role {
+  USER
+  STAFF
+  ADMIN
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  branch Branch[]
+  created_at DateTime @default(now())
+
+}
+
+
+model Branch {
+  id Int @id @default(autoincrement())
+  name String
+  categoryId Int
+  category Category @relation(fields:[categoryId],references:[id])
+  imageUrl String
+  location String
+  staff User[]
+  service Service[]
+  created_at DateTime @default(now())
+}
+
+model Service {
+  id         Int      @id @default(autoincrement())
+  name       String
+  description String?
+  branchId   Int
+  branch     Branch   @relation(fields: [branchId], references: [id])
+  queues Queue[]
+  created_at DateTime @default(now())
+}
+
+model Queue {
+  id         Int      @id @default(autoincrement())
+  name       String
+  serviceId  Int
+  service    Service  @relation(fields: [serviceId], references: [id])
+  entries    QueueEntry[]
+  created_at DateTime @default(now())
+}
+
+enum QueueStatus {
+  WAITING
+  SERVING
+  COMPLETED
+  SKIPPED
+}
+
+model QueueEntry {
+  id          Int         @id @default(autoincrement())
+
+  queueId     Int
+  queue       Queue       @relation(fields: [queueId], references: [id])
+
+  userId      Int?
+  user        User?       @relation(fields: [userId], references: [id])
+
+  phoneNumber String?
+
+  staffId     Int?
+  staff       User?       @relation("StaffQueueEntries", fields: [staffId], references: [id])
+
+  status      QueueStatus @default(WAITING)
+
+  created_at  DateTime    @default(now())
+}
+
