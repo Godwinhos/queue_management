@@ -87,7 +87,7 @@ const createUser = async (req, res) => {
         );
 
         const verificationLink =
-            `${publicApiUrl}/auth/verify-email?token=${verificationToken}`;
+            `${process.env.PUBLIC_API_URL}/auth/verify-email?token=${verificationToken}`;
 
         const info = await transporter.sendMail({
             from: process.env.SMTP_USER,
@@ -190,7 +190,9 @@ const resendEmail = async(req,res) =>{
             {expiresIn:"1h"}
         )
 
-        const verificationLink = `${publicApiUrl}/auth/verify-email?token=${verificationToken}`
+        const verificationLink = `${process.env.PUBLIC_API_URL}/auth/verify-email?token=${verificationToken}`
+
+        
 
         await transporter.sendMail({
             from: process.env.SMTP_USER, 
@@ -442,7 +444,7 @@ const forgotPassword = async(req,res)=>{
         {expiresIn:"1h"}
     )
 
-    const verificationLink = `${publicApiUrl}/auth/reset-password?token=${verificationToken}`
+    const verificationLink = `${process.env.PUBLIC_API_URL}/auth/reset-password?token=${verificationToken}`
 
      await transporter.sendMail({
         from: process.env.SMTP_USER, 
